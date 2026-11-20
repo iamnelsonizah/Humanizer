@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Humanizer</title>
+<meta name="description" content="Rewrite AI-sounding essays, papers, and posts so they read like a person wrote them, without losing a fact or a citation.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<script>
+  try { const t = localStorage.getItem("hz.theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<div class="app" id="app" data-state="empty">
+
+  <header class="top">
+    <a class="brand" href="/" aria-label="Humanizer home">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18c3-1 5-4 6-8l1-4c.4-1.6 2.6-1.6 3 0l1.5 6c.5 2 2 4 4.5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="4" cy="18" r="1.6" fill="var(--red)"/></svg>
+      <span class="brand-name">Humanizer</span>
+    </a>
+    <nav class="top-actions">
+      <span class="key-status" id="keyStatus" hidden></span>
+      <button class="ghost" id="historyBtn" title="History">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 10a6.5 6.5 0 1 0 2-4.7M3.5 3.5v3h3M10 6.5V10l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="lbl">History</span>
+      </button>
+      <button class="ghost icon" id="themeBtn" title="Switch theme" aria-label="Switch theme">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A6.5 6.5 0 0 1 7.5 4a6.5 6.5 0 1 0 8.5 8.5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <section class="intro" id="intro">
+    <p class="eyebrow">For essays, papers, abstracts, and posts</p>
+    <h1>Make it read like <span class="accent">you</span> wrote it.</h1>
+    <p class="lede">Paste a draft. Humanizer marks every machine-made habit, rewrites them for a human reader, then checks
+      that no fact, figure, or citation moved. You approve each change.</p>
+  </section>
+
+  <section class="controls" aria-label="Settings">
+    <div class="ctl">
+      <span class="ctl-label">Writing</span>
+      <button class="select" id="modeBtn" aria-haspopup="listbox" aria-expanded="false">
+        <span id="modeLabel">Auto-detect</span>
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+      <div class="pop mode-pop" id="modePop" role="listbox" hidden></div>
+    </div>
+
+    <div class="ctl">
+      <span class="ctl-label">Edit depth</span>
+      <div class="seg" id="intensity" role="radiogroup">
+        <button role="radio" data-v="light">Light</button>
+        <button role="radio" data-v="balanced" aria-checked="true">Balanced</button>
+        <button role="radio" data-v="deep">Deep</button>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <span class="ctl-label">Safeguards</span>
+      <button class="select" id="optsBtn" aria-haspopup="dialog" aria-expanded="false">
+        <span id="optsLabel">Citations locked</span>
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+      <div class="pop opts-pop" id="optsPop" role="dialog" aria-label="Safeguards" hidden>
+        <label class="row-toggle">
+          <span><b>Lock citations and figures</b><small>(Smith, 2020), [12], DOIs, p-values, N, CI are kept character for character.</small></span>
+          <input type="checkbox" id="optCites" checked><i></i>
+        </label>
+        <label class="row-toggle">
+          <span><b>Keep length</b><small>Stay within 10% of the original word count. On by default for academic writing.</small></span>
+          <input type="checkbox" id="optLength"><i></i>
+        </label>
+        <div class="row">
+          <span><b>Spelling</b></span>
+          <div class="seg small" id="dialect" role="radiogroup">
+            <button role="radio" data-v="auto" aria-checked="true">Keep</button>
+            <button role="radio" data-v="us">US</button>
+            <button role="radio" data-v="uk">UK</button>
+          </div>
+        </div>
+        <div class="row col" id="codeRow" hidden>
+          <span><b>Access code</b><small>This Humanizer is private. Enter the code you were given.</small></span>
+          <input class="field" id="optCode" type="password" autocomplete="off" placeholder="Access code">
+        </div>
+        <div class="row col">
+          <span><b>Protected terms</b><small>Discipline terms, names, or phrases that must not change. Press Enter to add.</small></span>
+          <div class="chips" id="terms"><input id="termInput" placeholder="e.g. self-efficacy, CRISPR-Cas9"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <span class="ctl-label">Voice</span>
+      <button class="select" id="voiceBtn" aria-haspopup="dialog">
+        <span id="voiceLabel">Neutral</span>
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="ctl go">
+      <button class="primary" id="runBtn" disabled>
+        <span class="run-text">Humanize</span>
+        <kbd>⌘↵</kbd>
+      </button>
+    </div>
+  </section>
+
+  <div class="mobile-tabs" role="tablist">
+    <button role="tab" data-pane="left" aria-selected="true">Draft</button>
+    <button role="tab" data-pane="right">Results</button>
+  </div>
+
+  <main class="desk" id="desk">
+    <!-- LEFT: the draft -->
+    <section class="pane left" id="paneLeft" aria-label="Your draft">
+      <div class="pane-head">
+        <h2>Draft</h2>
+        <div class="legend" id="legend" hidden>
+          <span class="lg s3">Strong tell</span><span class="lg s2">Tell</span><span class="lg s1">Weak</span><span class="lg cite">Locked</span>
+        </div>
+        <div class="pane-tools">
+          <button class="ghost xs" id="clearBtn" hidden>Clear</button>
+        </div>
+      </div>
+      <div class="editor-wrap" id="editorWrap">
+        <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+        <textarea id="draft" spellcheck="false" placeholder="Paste an essay, a paper section, an abstract, or a post…"></textarea>
+        <div class="samples" id="samples">
+          <span>Or try one:</span>
+          <button data-sample="essay">Student essay</button>
+          <button data-sample="abstract">Research abstract</button>
+          <button data-sample="review">Literature review</button>
+          <button data-sample="social">LinkedIn post</button>
+        </div>
+        <div class="tip" id="tip" role="tooltip" hidden></div>
+      </div>
+      <footer class="pane-foot">
+        <span id="wc">0 words</span>
+        <span class="dot">·</span>
+        <span id="rt">0 min read</span>
+        <span class="spacer"></span>
+        <span id="citeCount" class="muted"></span>
+      </footer>
+    </section>
+
+    <!-- RIGHT: report / progress / result -->
+    <section class="pane right" id="paneRight" aria-label="Report and rewrite">
+      <div class="pane-head">
+        <div class="tabs" role="tablist" id="rightTabs">
+          <button role="tab" data-view="report" aria-selected="true">Report</button>
+          <button role="tab" data-view="result" disabled>Rewrite <span class="badge" id="chgBadge" hidden></span></button>
+        </div>
+        <div class="pane-tools" id="resultTools" hidden>
+          <div class="seg small" id="viewMode" role="radiogroup">
+            <button role="radio" data-v="clean" aria-checked="true">Clean</button>
+            <button role="radio" data-v="track">Track changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report -->
+      <div class="view" id="viewReport">
+        <div class="empty" id="reportEmpty">
+          <div class="empty-art" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <p>The report appears as you type: how machine-like the draft reads, where the tells are, and what to keep
+            locked.</p>
+          <ul class="how">
+            <li><span><b>Scan</b> 40+ patterns and the rhythm of every sentence.</span></li>
+            <li><span><b>Rewrite</b> for one reader, in the register you choose.</span></li>
+            <li><span><b>Verify</b> facts, numbers, and citations against the original.</span></li>
+          </ul>
+        </div>
+
+        <div class="report" id="report" hidden>
+          <div class="score-block">
+            <div class="score-num"><span id="scoreNum">0</span><small>/100</small></div>
+            <div class="score-meta">
+              <div class="score-verdict" id="scoreVerdict">Reads human</div>
+              <div class="scale"><i id="scaleFill"></i><b style="left:15%"></b><b style="left:40%"></b></div>
+              <div class="scale-labels"><span>Human</span><span>Mixed</span><span>Machine-made</span></div>
+            </div>
+          </div>
+
+          <div class="stat-grid" id="statGrid"></div>
+
+          <div class="block">
+            <div class="block-head"><h3>Sentence rhythm</h3><span class="hint" id="rhythmHint"></span></div>
+            <div class="rhythm" id="rhythm"></div>
+          </div>
+
+          <div class="block">
+            <div class="block-head"><h3>Tells</h3><span class="hint" id="tellHint"></span></div>
+            <div class="tells" id="tells"></div>
+          </div>
+
+          <div class="block" id="marksBlock" hidden>
+            <div class="block-head"><h3>Locked marks</h3><span class="hint">kept exactly</span></div>
+            <div class="marks" id="marks"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="view" id="viewProgress" hidden>
+        <div class="progress">
+          <p class="eyebrow" id="progEyebrow">Working</p>
+          <h3 id="progTitle">Reading your draft</h3>
+          <ol class="stages" id="stages">
+            <li data-s="scan"><i></i><div><b>Scan</b><span>Find tells and measure rhythm</span></div></li>
+            <li data-s="rewrite"><i></i><div><b>Rewrite</b><span>Edit for one human reader</span></div></li>
+            <li data-s="check"><i></i><div><b>Verify</b><span>Compare every claim with the original</span></div></li>
+            <li data-s="revise"><i></i><div><b>Revise</b><span>Fix anything that moved</span></div></li>
+          </ol>
+          <div class="chunks" id="chunks"></div>
+          <p class="prog-log" id="progLog"></p>
+          <button class="ghost xs" id="cancelBtn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="view" id="viewResult" hidden>
+        <div class="verdict-strip" id="verdictStrip"></div>
+        <div class="checks" id="checks"></div>
+        <article class="output" id="output"></article>
+        <div class="tip" id="chgTip" role="dialog" hidden></div>
+      </div>
+
+      <footer class="pane-foot" id="resultFoot" hidden>
+        <span id="chgSummary"></span>
+        <span class="spacer"></span>
+        <button class="ghost xs" id="revertAll">Revert all</button>
+        <button class="ghost xs" id="acceptAll">Accept all</button>
+        <span class="sep"></span>
+        <button class="ghost xs" id="useDraft" title="Move the rewrite into the draft and scan it again">Edit further</button>
+        <button class="ghost xs" id="dlBtn">Download</button>
+        <button class="solid xs" id="copyBtn">Copy</button>
+      </footer>
+    </section>
+  </main>
+
+  <!-- Voice drawer -->
+  <aside class="drawer" id="voiceDrawer" aria-label="Your voice" hidden>
+    <div class="drawer-head">
+      <div><p class="eyebrow">Voice</p><h3>Write it the way you write</h3></div>
+      <button class="ghost icon" data-close aria-label="Close"><svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+    </div>
+    <p class="drawer-copy">Paste 150 words or more of your own writing: an earlier essay, a paper you wrote before AI tools,
+      a few emails. Humanizer measures your sentence length, rhythm, punctuation, and openings, and matches them.
+      The sample stays on this computer.</p>
+    <textarea id="voiceSample" placeholder="Paste something you wrote yourself…"></textarea>
+    <div class="voice-read" id="voiceRead"></div>
+    <div class="drawer-foot">
+      <button class="ghost xs" id="voiceClear">Remove sample</button>
+      <span class="spacer"></span>
+      <button class="solid xs" data-close>Done</button>
+    </div>
+  </aside>
+
+  <!-- History drawer -->
+  <aside class="drawer" id="historyDrawer" aria-label="History" hidden>
+    <div class="drawer-head">
+      <div><p class="eyebrow">History</p><h3>Recent rewrites</h3></div>
+      <button class="ghost icon" data-close aria-label="Close"><svg viewBox="0 0 20 20"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+    </div>
+    <p class="drawer-copy">Saved in this browser only.</p>
+    <ul class="history" id="historyList"></ul>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="config.js"></script>
+<script src="app.js" type="module"></script>
+</body>
+</html>

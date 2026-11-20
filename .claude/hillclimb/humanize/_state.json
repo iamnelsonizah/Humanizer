@@ -1,0 +1,53 @@
+{
+  "metrics": [
+    {
+      "id": "pass",
+      "label": "Pass",
+      "kind": "binary"
+    },
+    {
+      "id": "facts_kept",
+      "label": "Facts kept",
+      "kind": "binary"
+    },
+    {
+      "id": "style_clean",
+      "label": "Style clean",
+      "kind": "binary"
+    },
+    {
+      "id": "tells_cleared",
+      "label": "Tells cleared",
+      "kind": "float",
+      "scale": 1
+    },
+    {
+      "id": "similarity",
+      "label": "Similarity",
+      "kind": "float",
+      "scale": 1
+    }
+  ],
+  "perf_fields": [
+    {
+      "id": "cost_usd",
+      "label": "Cost $"
+    },
+    {
+      "id": "in_tokens",
+      "label": "In tok"
+    },
+    {
+      "id": "out_tokens",
+      "label": "Out tok"
+    }
+  ],
+  "harness_paths": [
+    "evals/grader.py",
+    "evals/cases.jsonl",
+    "humanizer/pipeline.py",
+    "humanizer/prompts.py",
+    "humanizer/detector.py"
+  ],
+  "harness_sha": "56c59b0c576d5d82dc9914e2cff9b3f19749f0b2f27fc4ccadcfd1bb925e39d5"
+}

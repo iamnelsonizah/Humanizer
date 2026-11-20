@@ -1,0 +1,28 @@
+[project]
+name = "humanizer"
+version = "0.1.0"
+description = "Rewrite AI-sounding text so people want to read it, without changing what it says."
+requires-python = ">=3.12"
+dependencies = ["anthropic>=1.0", "fastapi[standard]>=0.115"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+humanize = "humanizer.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["humanizer", "humanizer.web"]
+
+[tool.setuptools.package-data]
+"humanizer.web" = ["static/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.fastapi]
+entrypoint = "humanizer.api:app"

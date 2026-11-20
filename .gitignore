@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.egg-info/
+voice.json
+**/traces/
+.claude/hillclimb/**/report.html
+.claude/hillclimb/**/state.json
+.claude/hillclimb/**/trajectory/
+.claude/hillclimb/**/_check_*/
+.env
